@@ -1,0 +1,36 @@
+"""Supported ticker universe (symbol, name, sector). Kept small so the pooled model and API quotas stay manageable."""
+
+UNIVERSE: list[tuple[str, str, str]] = [
+    ("AAPL", "Apple", "Technology"),
+    ("MSFT", "Microsoft", "Technology"),
+    ("NVDA", "NVIDIA", "Technology"),
+    ("GOOGL", "Alphabet", "Communication Services"),
+    ("META", "Meta Platforms", "Communication Services"),
+    ("AMZN", "Amazon", "Consumer Discretionary"),
+    ("TSLA", "Tesla", "Consumer Discretionary"),
+    ("HD", "Home Depot", "Consumer Discretionary"),
+    ("MCD", "McDonald's", "Consumer Discretionary"),
+    ("NKE", "Nike", "Consumer Discretionary"),
+    ("JPM", "JPMorgan Chase", "Financials"),
+    ("BAC", "Bank of America", "Financials"),
+    ("GS", "Goldman Sachs", "Financials"),
+    ("V", "Visa", "Financials"),
+    ("MA", "Mastercard", "Financials"),
+    ("JNJ", "Johnson & Johnson", "Health Care"),
+    ("UNH", "UnitedHealth", "Health Care"),
+    ("PFE", "Pfizer", "Health Care"),
+    ("LLY", "Eli Lilly", "Health Care"),
+    ("XOM", "Exxon Mobil", "Energy"),
+    ("CVX", "Chevron", "Energy"),
+    ("PG", "Procter & Gamble", "Consumer Staples"),
+    ("KO", "Coca-Cola", "Consumer Staples"),
+    ("WMT", "Walmart", "Consumer Staples"),
+    ("COST", "Costco", "Consumer Staples"),
+    ("CAT", "Caterpillar", "Industrials"),
+    ("BA", "Boeing", "Industrials"),
+    ("UPS", "UPS", "Industrials"),
+    ("DIS", "Disney", "Communication Services"),
+    ("NFLX", "Netflix", "Communication Services"),
+]
+
+SYMBOLS = {s for s, _, _ in UNIVERSE}
