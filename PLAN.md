@@ -4,6 +4,21 @@
 
 ---
 
+## Status (updated 2026-11-20)
+
+| Phase | State | Notes |
+|---|---|---|
+| 0. Feasibility decisions | Done | Decisions Log at the bottom |
+| 1. Foundation & data | Done | Finnhub spike: candles 403, `/quote` has no volume, news ~9 months back; prices via yfinance in jobs. 30-ticker universe backfilled (~8y). Docker Compose verified on Postgres |
+| 2. Auth & portfolios | Done (code + 37 tests) | Google OAuth, rotating refresh tokens, IDOR tests. Live Google login was checked up to the redirect to Google; the full browser round trip is the one thing not confirmed by me |
+| 3. Features, model, signals | Done | LightGBM (not XGBoost: much smaller wheel). 5-day signal shipped; edge over baselines is small, see `docs/model_report.md`. 54 backend tests |
+| 4. SHAP & risk | Next | `signals.shap_json` column is ready; `signal_service.store_signal` preserves existing SHAP data |
+| 5-9 | Not started | |
+
+Deviations from the original plan so far: LightGBM over XGBoost; pooled 5-day model shipped (1-day trained but not served); ETS baseline instead of Prophet/LSTM; training notebook replaced by `python -m app.ml.train`; scheduled jobs are CLI entrypoints (`python -m app.jobs ...`) not yet scheduled (Phase 7).
+
+---
+
 ## 0. Feasibility Decisions (changes vs. the original summary)
 
 The original scope is good, but several items break on free hosting or have data problems. These decisions make it buildable and deployable. **Confirm them before Phase 1.**
@@ -45,7 +60,7 @@ The original scope is good, but several items break on free hosting or have data
   - [ ] Indexes on `(ticker,date)`, `holdings.portfolio_id`, `portfolios.user_id`
   - [ ] Add `refresh_tokens` table (hashed token, user_id, family_id, expires_at, revoked_at)
   - [ ] Add `tickers` table (symbol, name, sector) for the supported universe and sector exposure
-- [ ] `docker-compose.yml`: Postgres + backend (+ frontend dev)
+- [x] `docker-compose.yml`: Postgres (host port 5433, because a local Postgres uses 5432) + backend; frontend runs with `npm run dev`
 
 ### 1.3 Market data service
 - [x] **Spike (1 hr):** test Finnhub free endpoints (quote, company-news, candles) and record what works; get key; write a `MarketDataProvider` interface so providers are swappable
@@ -91,28 +106,28 @@ The original scope is good, but several items break on free hosting or have data
 ## Phase 3: Features, Model & Signals (Week 3)
 
 ### 3.1 Feature engineering (`ml/features.py`)
-- [ ] RSI, MACD (+signal/hist), momentum (5/10/20d), volume spike (vs 20d avg), MA ratios (price/SMA20, SMA20/SMA50), rolling volatility, returns lags
-- [ ] Use only data available at close of day *t* to predict *t+1..t+N*; assert no look-ahead (unit test: shifting future data doesn't change features)
-- [ ] Single shared function used by both training and serving (prevents train/serve skew)
+- [x] RSI, MACD (+signal/hist), momentum (5/10/20d), volume spike (vs 20d avg), MA ratios (price/SMA20, SMA20/SMA50), rolling volatility, returns lags
+- [x] Use only data available at close of day *t* to predict *t+1..t+N*; assert no look-ahead (unit test: shifting future data doesn't change features)
+- [x] Single shared function used by both training and serving (prevents train/serve skew)
 
 ### 3.2 Target & validation
-- [ ] Target: N-day forward return bucketed into down / flat / up (threshold e.g. ±0.5%, or per-ticker volatility-scaled); choose N (start 1 day, test 5)
-- [ ] Walk-forward (expanding window) CV with a **gap/embargo** of N days; no shuffling
-- [ ] Metrics: accuracy, macro-F1, log-loss, per-class precision, confusion matrix
-- [ ] **Baselines to beat:** majority class, "same as yesterday", logistic regression on same features
-- [ ] Optional backtest: simple long/flat strategy vs buy-and-hold net of a cost assumption (report honestly even if it doesn't win)
+- [x] Target: N-day forward return bucketed into down / flat / up (threshold e.g. ±0.5%, or per-ticker volatility-scaled); choose N (start 1 day, test 5)
+- [x] Walk-forward (expanding window) CV with a **gap/embargo** of N days; no shuffling
+- [x] Metrics: accuracy, macro-F1, log-loss, per-class precision, confusion matrix
+- [x] **Baselines to beat:** majority class, "same as yesterday", logistic regression on same features
+- [x] Optional backtest: simple long/flat strategy vs buy-and-hold net of a cost assumption (report honestly even if it doesn't win)
 
 ### 3.3 Train & package
-- [ ] XGBoost or LightGBM (pick one); light hyperparameter search inside walk-forward folds only
-- [ ] Probability calibration check (reliability curve; isotonic if needed)
-- [ ] Save model + feature list + version + training date + metrics as artifacts (small; commit or store in repo/release)
-- [ ] Training notebook/script with a fixed random seed (deliverable)
+- [x] XGBoost or LightGBM (pick one); light hyperparameter search inside walk-forward folds only
+- [x] Probability calibration check (reliability curve; isotonic not needed: ECE 0.014)
+- [x] Save model + feature list + version + training date + metrics as artifacts (small; commit or store in repo/release)
+- [x] Training script with a fixed random seed (`python -m app.ml.train`); report in `docs/model_report.md`
 
 ### 3.4 Serving
-- [ ] `signal_service`: load model once at startup; compute latest features from DB prices
-- [ ] Daily job: for each ticker, compute signal, probability, store in `signals`
-- [ ] `GET /stocks/{ticker}/signal` (reads the stored row; falls back to compute if missing)
-- [ ] Forecast baseline: naive + ETS; `GET /stocks/{ticker}/forecast` with naive-vs-model error stats
+- [x] `signal_service`: load model once at startup; compute latest features from DB prices
+- [x] Daily job: for each ticker, compute signal, probability, store in `signals`
+- [x] `GET /stocks/{ticker}/signal` (reads the stored row; falls back to compute if missing)
+- [x] Forecast baseline: naive + ETS; `GET /stocks/{ticker}/forecast` with naive-vs-model error stats
 
 **Done when:** signal endpoint returns a class + probability; walk-forward report exists in `docs/`; leakage test passes; results compared to baselines (even if the edge is small).
 

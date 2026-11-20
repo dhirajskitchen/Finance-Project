@@ -1,5 +1,5 @@
--r requirements.txt
+-r requirements-ml.txt
 pytest==8.3.4
 respx==0.22.0
 ruff==0.8.4
-yfinance==0.2.51
+yfinance==1.8.0

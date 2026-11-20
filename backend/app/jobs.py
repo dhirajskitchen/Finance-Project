@@ -1,4 +1,4 @@
-"""CLI entrypoint for scheduled jobs: python -m app.jobs <seed|prices> [--tickers A,B]"""
+"""CLI entrypoint for scheduled jobs: python -m app.jobs <seed|prices|signals> [--tickers A,B]"""
 
 import argparse
 import logging
@@ -31,10 +31,26 @@ def refresh_prices(db: Session, tickers: list[str]) -> None:
         time.sleep(0.5)
 
 
+def compute_signals(db: Session, tickers: list[str]) -> None:
+    from app.services import signal_service
+
+    for t in tickers:
+        try:
+            sig = signal_service.compute_signal(db, t)
+            if sig is None:
+                log.warning("%s: not enough history for a signal", t)
+                continue
+            signal_service.store_signal(db, sig)
+            log.info("%s: %s (%.2f) as of %s", t, sig["action"], sig["probability"], sig["date"])
+        except Exception:
+            db.rollback()
+            log.exception("%s: signal failed", t)
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
     ap = argparse.ArgumentParser()
-    ap.add_argument("job", choices=["seed", "prices"])
+    ap.add_argument("job", choices=["seed", "prices", "signals"])
     ap.add_argument("--tickers", default="")
     args = ap.parse_args()
     tickers = [t.strip().upper() for t in args.tickers.split(",") if t.strip()] or sorted(SYMBOLS)
@@ -42,6 +58,8 @@ def main() -> None:
         seed_universe(db)
         if args.job == "prices":
             refresh_prices(db, tickers)
+        elif args.job == "signals":
+            compute_signals(db, tickers)
 
 
 if __name__ == "__main__":

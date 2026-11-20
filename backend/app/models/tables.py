@@ -115,5 +115,6 @@ class Signal(Base):
     date: Mapped[date] = mapped_column(Date)
     prediction: Mapped[str] = mapped_column(String(10))
     probability: Mapped[float] = mapped_column(Float)
+    probabilities: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     shap_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)

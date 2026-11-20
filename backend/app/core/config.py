@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     max_portfolios: int = 10
     max_holdings: int = 50
 
+    # Which trained horizon (days) the public signal uses
+    signal_horizon: int = 5
+
     # Re-fetch prices if the newest cached row is older than this many days
     price_stale_days: int = 1
 

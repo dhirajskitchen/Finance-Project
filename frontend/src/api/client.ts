@@ -21,6 +21,39 @@ export interface PriceSeries {
   last_updated: string | null
 }
 
+export interface Signal {
+  ticker: string
+  date: string
+  horizon_days: number
+  prediction: 'down' | 'flat' | 'up'
+  action: 'sell' | 'hold' | 'buy'
+  probability: number
+  probabilities: Record<'down' | 'flat' | 'up', number>
+  model_version: string
+  disclaimer: string
+}
+
+export interface ModelError {
+  mae: number
+  mape: number
+  direction_accuracy: number | null
+}
+
+export interface Forecast {
+  ticker: string
+  last_close: number
+  last_date: string
+  forecast: { date: string; ets: number; naive: number }[]
+  evaluation: {
+    window_days: number
+    naive: ModelError
+    ets: ModelError
+    ets_beats_naive: boolean
+    mae_improvement_pct: number
+  }
+  note: string
+}
+
 export type PriceRange = '1m' | '3m' | '6m' | '1y' | '5y' | 'max'
 
 export interface User {
@@ -114,6 +147,9 @@ export const api = {
   tickers: () => request<Ticker[]>('/stocks'),
   prices: (ticker: string, range: PriceRange) =>
     request<PriceSeries>(`/stocks/${encodeURIComponent(ticker)}/prices?range=${range}`),
+
+  signal: (ticker: string) => request<Signal>(`/stocks/${encodeURIComponent(ticker)}/signal`),
+  forecast: (ticker: string) => request<Forecast>(`/stocks/${encodeURIComponent(ticker)}/forecast`),
 
   me: () => request<User>('/auth/me', {}, true),
   portfolios: () => request<Portfolio[]>('/portfolios', {}, true),

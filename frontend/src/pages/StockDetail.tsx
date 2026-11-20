@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, type PriceRange } from '../api/client'
+import ForecastPanel from '../components/ForecastPanel'
 import PriceChart from '../components/PriceChart'
+import SignalCard from '../components/SignalCard'
 
 const RANGES: PriceRange[] = ['1m', '3m', '6m', '1y', '5y', 'max']
 
@@ -16,6 +18,9 @@ export default function StockDetail() {
     queryKey: ['prices', ticker, range],
     queryFn: () => api.prices(ticker, range),
   })
+
+  const signal = useQuery({ queryKey: ['signal', ticker], queryFn: () => api.signal(ticker), retry: false })
+  const forecast = useQuery({ queryKey: ['forecast', ticker], queryFn: () => api.forecast(ticker), retry: false })
 
   return (
     <main>
@@ -48,6 +53,10 @@ export default function StockDetail() {
           </p>
         </>
       )}
+
+      {signal.data && <SignalCard signal={signal.data} />}
+      {signal.isError && <p className="muted">No signal available for this ticker yet.</p>}
+      {forecast.data && <ForecastPanel data={forecast.data} />}
     </main>
   )
 }

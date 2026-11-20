@@ -3,7 +3,10 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /srv
 
-# Runtime image only: no torch/transformers/shap/yfinance (training and scoring run offline)
+# LightGBM needs the OpenMP runtime, which the slim image lacks
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+
+# Runtime image only: no torch/transformers/shap/yfinance/sklearn (training and scoring run offline)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

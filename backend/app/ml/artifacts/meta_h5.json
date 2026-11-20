@@ -1,0 +1,49 @@
+{
+  "version": "lgbm-h5-20261120",
+  "trained_at": "2026-11-20T05:40:43+00:00",
+  "horizon_days": 5,
+  "flat_band_k": 0.5,
+  "features": [
+    "rsi_14",
+    "macd",
+    "macd_signal",
+    "macd_hist",
+    "mom_5",
+    "mom_10",
+    "mom_20",
+    "vol_spike",
+    "ma_ratio_20",
+    "ma_ratio_20_50",
+    "ma_ratio_50_200",
+    "volatility_20",
+    "vol_ratio_5_20",
+    "range_pct",
+    "ret_lag_1",
+    "ret_lag_2",
+    "ret_lag_3"
+  ],
+  "classes": [
+    "down",
+    "flat",
+    "up"
+  ],
+  "params": {
+    "objective": "multiclass",
+    "num_class": 3,
+    "learning_rate": 0.03,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "reg_lambda": 10.0,
+    "random_state": 42,
+    "deterministic": true,
+    "force_row_wise": true,
+    "n_jobs": 4,
+    "verbose": -1,
+    "num_leaves": 7,
+    "min_child_samples": 200,
+    "n_estimators": 100
+  },
+  "data_end": "2026-11-12",
+  "holdout_accuracy": 0.4082550601931472
+}
