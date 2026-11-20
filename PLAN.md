@@ -67,22 +67,22 @@ The original scope is good, but several items break on free hosting or have data
 ## Phase 2: Auth & Portfolios (Week 2)
 
 ### 2.1 OAuth2 + sessions
-- [ ] Register Google OAuth app (dev + prod redirect URIs); (GitHub optional)
-- [ ] Authlib login/callback; upsert user by `(provider, provider_sub)`; validate `state`
-- [ ] Decide token transport (D8) and implement
-- [ ] Short-lived JWT access token (~15 min) + **refresh-token rotation**: store hash, rotate on use, revoke family on reuse detection
-- [ ] `/auth/logout`, `/auth/refresh`, `GET /me`
-- [ ] `get_current_user` dependency used by every protected route
+- [x] Register Google OAuth app (dev + prod redirect URIs); (GitHub optional)
+- [x] Authlib login/callback; upsert user by `(provider, provider_sub)`; validate `state`
+- [x] Decide token transport (D8) and implement: access token in memory, rotating refresh token in httpOnly cookie on `/auth`, Origin check on cookie POSTs, `COOKIE_SAMESITE`/`COOKIE_SECURE` env for cross-site hosting
+- [x] Short-lived JWT access token (~15 min) + **refresh-token rotation**: store hash, rotate on use, revoke family on reuse detection
+- [x] `/auth/logout`, `/auth/refresh`, `GET /me`
+- [x] `get_current_user` dependency used by every protected route
 
 ### 2.2 Portfolios & holdings
-- [ ] CRUD: portfolios, holdings (add/update/delete); validate ticker in universe, quantity > 0, avg_price >= 0
-- [ ] **Per-user isolation:** every query filters by `user_id`; return 404 (not 403) for others' resources
-- [ ] Tests: user A cannot read/modify user B's portfolio (IDOR tests)
-- [ ] Limits: max portfolios/holdings per user
+- [x] CRUD: portfolios, holdings (add/update/delete); validate ticker in universe, quantity > 0, avg_price >= 0
+- [x] **Per-user isolation:** every query filters by `user_id`; return 404 (not 403) for others' resources
+- [x] Tests: user A cannot read/modify user B's portfolio (IDOR tests)
+- [x] Limits: max portfolios/holdings per user
 
 ### 2.3 Frontend
-- [ ] Login page, auth context, protected routes, silent refresh
-- [ ] Dashboard (portfolio list) and Portfolio page (holdings table + add/edit/delete forms)
+- [x] Login page, auth context, protected routes, silent refresh
+- [x] Dashboard (portfolio list) and Portfolio page (holdings table + add/edit/delete forms)
 
 **Done when:** log in with Google, create a portfolio, add holdings, log out; isolation tests green.
 

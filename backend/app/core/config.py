@@ -19,6 +19,16 @@ class Settings(BaseSettings):
     jwt_secret: str = ""
     internal_job_token: str = ""
 
+    # Public URL of this API; the OAuth redirect URI is built from it so it never depends on the Host header
+    api_base_url: str = "http://localhost:8000"
+    # Cross-site hosting (Vercel + Render) needs samesite=none and secure=true; same-site setups can use lax
+    cookie_samesite: str = "lax"
+    cookie_secure: bool = False
+    access_token_minutes: int = 15
+    refresh_token_days: int = 14
+    max_portfolios: int = 10
+    max_holdings: int = 50
+
     # Re-fetch prices if the newest cached row is older than this many days
     price_stale_days: int = 1
 
